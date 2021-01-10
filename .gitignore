@@ -1,0 +1,7 @@
+data/
+imagelist/*.txt
+runs/
+venv/
+*.pth
+.idea/
+__pycache__/
