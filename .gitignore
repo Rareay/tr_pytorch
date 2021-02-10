@@ -5,3 +5,5 @@ venv/
 *.pth
 .idea/
 __pycache__/
+*.prototxt
+*.caffemodel

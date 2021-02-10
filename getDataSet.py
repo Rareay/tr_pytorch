@@ -6,6 +6,7 @@ import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
 from getImageList import getClass
+import cv2
 
 # 输出图像的函数
 def imshowDatesetBatch(img):
@@ -41,12 +42,14 @@ class getDataset(Dataset):
     def __getitem__(self, item):
         #print(self.imgs[item])
         fn, label = self.imgs[item]
-        img = Image.open(fn)
-        if img.mode is "RGBA" \
-                or img.mode is "PNG"\
-                or img.mode is "L" \
-                or img.mode is "CMYK":
-            img = img.convert("RGB")
+        img = cv2.imread(fn)
+        img = Image.fromarray(img)
+        # img = Image.open(fn)
+        # if img.mode is "RGBA" \
+        #         or img.mode is "PNG"\
+        #         or img.mode is "L" \
+        #         or img.mode is "CMYK":
+        #     img = img.convert("RGB")
         #print(img.mode)
         if self.transform:
             img = self.transform(img)

@@ -49,18 +49,10 @@ def changeFilename(path):
             #if name[1] == "jpg":
 
 label1 = [
-          "_cane",
-          "_elefante",
           "_gallina",
-          "_mucca",
-          "_ragno",
-          "_cavallo",
-          "_farfalla",
-          "_gatto",
           "_pecora",
           "_scoiattolo",
           ]
-label2 = ["dog_", "cat_"]
 lables = label1
 
 def getClass():

@@ -3,8 +3,25 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class tlcMode(nn.Module):
+    def __init__(self):
+        super(tlcMode, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, 3, 2, 1, bias=False)
+        self.conv2 = nn.Conv2d(32, 64, 3, 2, 1, bias=False)
+        self.conv3 = nn.Conv2d(64, 32, 3, 2, 1, bias=False)
+        self.conv4 = nn.Conv2d(32, 16, 3, 2, 1)
+        self.maxpool = nn.MaxPool2d(2, 2)
+        self.fc = nn.Linear(16 * 2 * 2, 3)
 
-
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.maxpool(x)
+        x = x.view(-1, 16 * 2 * 2)
+        x = self.fc(x)
+        return x
 
 
 class simpleNet(nn.Module):
@@ -60,7 +77,7 @@ class VGG16(nn.Module):
 
         self.fc1 = nn.Linear(512 * 7 * 7, 4096)
         self.fc2 = nn.Linear(4096, 4096)
-        self.fc3 = nn.Linear(4096, 10)
+        self.fc3 = nn.Linear(4096, 3)
         # softmax 1 * 1 * 10
 
     def forward(self, x):
@@ -119,12 +136,13 @@ class VGG16(nn.Module):
 class Maogou(nn.Module):
     def __init__(self):
         super(Maogou, self).__init__()
+        # input 3 x 224 x 224
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.maxpool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.fc1 = nn.Linear(16 * 53 * 53, 1024)
         self.fc2 = nn.Linear(1024, 512)
-        self.fc3 = nn.Linear(512, 2)
+        self.fc3 = nn.Linear(512, 3)
 
     def forward(self, x):
         x = self.maxpool(F.relu(self.conv1(x)))
@@ -135,5 +153,8 @@ class Maogou(nn.Module):
         x = self.fc3(x)
 
         return x
+
+
+
 
 
