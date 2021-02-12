@@ -49,6 +49,7 @@ def load_image_pytorch(image_path):
         for root, dirs, files in os.walk(image_path):
             for file in files:
                 full_path = os.path.join(image_path, file)
+                print(full_path)
                 img = cv2.imread(full_path)
                 if img is None:
                     continue
@@ -101,7 +102,7 @@ if __name__ == '__main__':
     parser.add_argument('--protofile', default='resnet18.prototxt', type=str)
     parser.add_argument('--weightfile', default='resnet18.caffemodel', type=str)
     parser.add_argument('--model', default="Module20.pth", type=str)
-    parser.add_argument('--imgfile', default='./data/temp', type=str)
+    parser.add_argument('--imgfile', default='./data/raw-img/test/pecora', type=str)
     parser.add_argument('--height', default=224, type=int)
     parser.add_argument('--width', default=224, type=int)
     parser.add_argument('--meanB', default=104, type=float)
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     imgfile = args.imgfile
 
     net = ModeResnet18()
-    net.load_state_dict(torch.load("Module20.pth"))
+    net.load_state_dict(torch.load("Module50.pth"))
     net.eval()
 
     namelist, image = load_image_pytorch(imgfile)
