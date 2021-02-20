@@ -38,4 +38,5 @@ def addKeyForImage(path, key_ori, key_new):
 
 
 if __name__ == "__main__":
-    addKeyForImage("./data/raw-img/train/pecora", ".", "_p.")
+    #renameByNumber("./data/raw-img/train")
+    addKeyForImage("./data/raw-img/train/gallina", ".", "_g.")

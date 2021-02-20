@@ -43,4 +43,4 @@ def chooseFiles(path, chooseNums):
 
 
 if __name__ == "__main__":
-    chooseFiles("data/raw-img/train/gallina", 10)
+    chooseFiles("data/raw-img/train/gallina", 100)
