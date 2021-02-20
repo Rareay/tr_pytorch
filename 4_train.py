@@ -129,12 +129,13 @@ if __name__ == "__main__":
 
     TrainData = getDataset(txt="./imagelist/train.txt")
     TestData = getDataset(txt="./imagelist/test.txt")
-    TrainLoader = DataLoader(dataset=TrainData, batch_size=128, shuffle=True, num_workers=2)
+    TrainLoader = DataLoader(dataset=TrainData, batch_size=32, shuffle=True, num_workers=2)
     TestLoader = DataLoader(dataset=TestData, batch_size=32, shuffle=False, num_workers=2)
     demo.loadData(TrainLoader, TestLoader)
 
     #Module = torchvision.models.resnet18(pretrained=True)
     Module = ModeResnet18()
+    #Module.load_state_dict(torch.load("Module25.pth"))
     #Module = VGG16()
     #for param in Module.parameters():
     #    param.require_grad = False  # 不改变卷积网络部分的参数
@@ -145,5 +146,5 @@ if __name__ == "__main__":
     demo.Epoch = 50
     demo.EpochSaveModule = 5
     demo.EpochDoTest = 2
-    demo.train(lr=0.0005)
+    demo.train(lr=0.0001)
 

@@ -11,7 +11,7 @@ from module_resnet import ModeResnet18
 if __name__ == '__main__':
     name = 'resnet18'
     Module = ModeResnet18()
-    Module.load_state_dict(torch.load("Module50.pth"))
+    Module.load_state_dict(torch.load("Module15.pth"))
     Module.eval()
     input = torch.ones([1, 3, 224, 224])
     pytorch_to_caffe.trans_net(Module, input, name)

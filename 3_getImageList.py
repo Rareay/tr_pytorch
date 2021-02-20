@@ -38,16 +38,6 @@ def findfile(labels, img_path, filename):
     file_write.write(line)
     print(img_path, " : have ", file_nums, " iamges.")
 
-def changeFilename(path):
-   for root,dirs,files in os.walk(path):
-        for file in files:
-            #name = file.split('.',1)
-            file_new = file.replace("cat.", "0_cat_")
-            os.rename(os.path.join(path, file), os.path.join(path, file_new))
-            #print(os.path.join(root, file))
-            #print(os.path.join(root, file_new))
-            #if name[1] == "jpg":
-
 label1 = [
           "_gallina",
           "_pecora",
@@ -64,4 +54,3 @@ if __name__ == '__main__':
     findfile(lables, r"data/raw-img/train", "./imagelist/train.txt")
     #findfile(lables, r"./data/dogs-vs-cats/test", "./imagelist/test.txt" )
     #findfile(lables, r"./data/dogs-vs-cats/train", "./imagelist/train.txt")
-    #changeFilename(r"./data/dogs-vs-cats/train/cat")
