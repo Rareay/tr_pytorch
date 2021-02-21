@@ -38,14 +38,15 @@ def addKeyForImage(path, key_ori, key_new):
 
 
 if __name__ == "__main__":
-    #renameByNumber("./data/raw-img/train")
-    addKeyForImage("./data/raw-img/train/gou", ".", "_gou.")
-    addKeyForImage("./data/raw-img/train/hua", ".", "_hua.")
-    addKeyForImage("./data/raw-img/train/ji", ".", "_ji.")
-    addKeyForImage("./data/raw-img/train/ma", ".", "_ma.")
-    addKeyForImage("./data/raw-img/train/mao", ".", "_mao.")
-    addKeyForImage("./data/raw-img/train/niu", ".", "_niu.")
-    addKeyForImage("./data/raw-img/train/songshu", ".", "_songshu.")
-    addKeyForImage("./data/raw-img/train/xiang", ".", "_xiang.")
-    addKeyForImage("./data/raw-img/train/yang", ".", "_yang.")
-    addKeyForImage("./data/raw-img/train/zhizhu", ".", "_zhizhu.")
+    #renameByNumber("./data/train")
+    addKeyForImage("./data/train/gou", ".", "_gou_.")
+    addKeyForImage("./data/train/hua", ".", "_hua_.")
+    addKeyForImage("./data/train/ji", ".", "_ji_.")
+    addKeyForImage("./data/train/ma", ".", "_ma_.")
+    addKeyForImage("./data/train/mao", ".", "_mao_.")
+    addKeyForImage("./data/train/niu", ".", "_niu_.")
+    addKeyForImage("./data/train/songshu", ".", "_songshu_.")
+    addKeyForImage("./data/train/xiang", ".", "_xiang_.")
+    addKeyForImage("./data/train/yang", ".", "_yang_.")
+    addKeyForImage("./data/train/zhizhu", ".", "_zhizhu_.")
+

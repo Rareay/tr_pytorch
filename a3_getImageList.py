@@ -39,16 +39,16 @@ def findfile(labels, img_path, filename):
     print(img_path, " : have ", file_nums, " iamges.")
 
 label1 = [
-          "_gou",
-          "_hua",
-          "_ji",
-          "_ma",
-          "_mao",
-          "_niu",
-          "_songshu",
-          "_xiang",
-          "_yang",
-          "_zhizhu",
+          "_gou_",
+          "_hua_",
+          "_ji_",
+          "_ma_",
+          "_mao_",
+          "_niu_",
+          "_songshu_",
+          "_xiang_",
+          "_yang_",
+          "_zhizhu_",
           ]
 lables = label1
 
@@ -57,7 +57,7 @@ def getClass():
 
 if __name__ == '__main__':
     # 使用相对路径
-    findfile(lables, r"data/raw-img/test", "./imagelist/test.txt" )
-    findfile(lables, r"data/raw-img/train", "./imagelist/train.txt")
+    findfile(lables, r"data/test", "./imagelist/test.txt" )
+    findfile(lables, r"data/train", "./imagelist/train.txt")
     #findfile(lables, r"./data/dogs-vs-cats/test", "./imagelist/test.txt" )
     #findfile(lables, r"./data/dogs-vs-cats/train", "./imagelist/train.txt")

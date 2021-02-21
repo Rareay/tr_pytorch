@@ -1,11 +1,11 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
-
+from torchvision import models
 from getDataSet import getDataset, imshowDatesetBatch
 from torchvision import transforms
 from torch.utils.data import DataLoader
-from getImageList import getClass
+from a3_getImageList import getClass
 from modules import *
 
 import matplotlib.pyplot as plt
@@ -134,17 +134,28 @@ if __name__ == "__main__":
     demo.loadData(TrainLoader, TestLoader)
 
     #Module = torchvision.models.resnet18(pretrained=True)
-    Module = ModeResnet18()
-    #Module.load_state_dict(torch.load("Module25.pth"))
+    #Module = ModeResnet18()
+    #Module.load_state_dict(torch.load("Module5.pth"))
     #Module = VGG16()
     #for param in Module.parameters():
     #    param.require_grad = False  # 不改变卷积网络部分的参数
     #dim = Module.fc.in_features
     #Module.fc = nn.Linear(dim, 3)
+    Module = models.resnet50(pretrained=True)
+    for param in Module.parameters():
+        param.requires_grad = False
+    fc_inputs = Module.fc.in_features
+    Module.fc = nn.Sequential(
+        nn.Linear(fc_inputs, 256),
+        nn.ReLU(),
+        nn.Dropout(0.4),
+        nn.Linear(256, 10),
+        nn.LogSoftmax(dim=1)
+    )
     demo.loadModule(Module)
 
     demo.Epoch = 50
     demo.EpochSaveModule = 5
-    demo.EpochDoTest = 2
+    demo.EpochDoTest = 1
     demo.train(lr=0.0001)
 

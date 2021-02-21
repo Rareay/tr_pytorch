@@ -5,7 +5,7 @@ from PIL import Image
 import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
-from getImageList import getClass
+from a3_getImageList import getClass
 import cv2
 
 # 输出图像的函数

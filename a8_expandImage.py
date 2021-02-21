@@ -4,7 +4,6 @@ import random
 import os
 
 
-
 def findFile(path):
     '''
     return namelist
@@ -255,6 +254,7 @@ def batchNoiseGasuss(namelist, save_dir, expand_num=0):
         cv2.imwrite(new_filename, img2)
         filename_num += 1
 
+
 def batchGasussBlur(namelist, save_dir, expand_num=0):
     base_dir = save_dir + "/gasuss/"
     if not os.path.exists(base_dir):
@@ -265,7 +265,7 @@ def batchGasussBlur(namelist, save_dir, expand_num=0):
         index_rand = int(random.random() * (len(namelist) - 1))
         filename = namelist[index_rand]
         img = cv2.imread(filename)
-        sigma = 1 + 2 * random.random()
+        sigma = 0.5 + 4 * random.random()
         img2 = doGasussBlur(img, sigma)
         just_name = os.path.splitext(os.path.basename(filename))[0]
         new_filename = base_dir + just_name + "_" + format(filename_num, '04d') + ".jpg"
@@ -273,15 +273,14 @@ def batchGasussBlur(namelist, save_dir, expand_num=0):
         filename_num += 1
 
 
-
-def expandImage(image_dir, category, save_dir='./expandData',
-                translate=0,
-                flip=0,
-                rotation=0,
-                cut=0,
-                noise_jiaoyan=0,
-                noise_gasuss=0,
-                gasussblur=0):
+def expandImage(image_dir, category, save_dir='./expandData', nums=0):
+    translate = int(nums * 0.15)
+    flip = int(nums * 0.1)
+    rotation = int(nums * 0.2)
+    cut = int(nums * 0.15)
+    noise_jiaoyan = int(nums * 0.1)
+    noise_gasuss = int(nums * 0.1)
+    gasussblur = int(nums * 0.2)
     save_dir = save_dir + "/" + category
     namelist = findFile(image_dir)
     batchTranslation(namelist, save_dir, translate)
@@ -292,12 +291,21 @@ def expandImage(image_dir, category, save_dir='./expandData',
     batchNoiseGasuss(namelist, save_dir, noise_gasuss)
     batchGasussBlur(namelist, save_dir, gasussblur)
 
-    print("Expand %d images, save in '%s'" %(translate + flip, save_dir))
-
+    print("Expand %d images, save in '%s'" %(
+            translate + flip + rotation + cut + noise_jiaoyan + noise_gasuss + gasussblur,
+            save_dir))
 
 
 if __name__ == "__main__":
-    expandImage('data/test/gou', 'gou', translate=10, flip=10, rotation=10, cut=10,
-                                        noise_jiaoyan=10, noise_gasuss=10, gasussblur=10)
+    expandImage('data/train/gou', 'gou', nums=5000 - 4363)
+    expandImage('data/train/hua', 'hua', nums=5000 - 1612)
+    expandImage('data/train/ji', 'ji', nums=5000 - 2598)
+    expandImage('data/train/ma', 'ma', nums=5000 - 2123)
+    expandImage('data/train/mao', 'mao', nums=5000 - 1168)
+    expandImage('data/train/niu', 'niu', nums=5000 - 1366)
+    expandImage('data/train/songshu', 'songshu', nums=5000 - 432)
+    expandImage('data/train/xiang', 'xiang', nums=5000 - 822)
+    expandImage('data/train/yang', 'yang', nums=5000 - 1320)
+    expandImage('data/train/zhizhu', 'zhizhu', nums=5000 - 4321)
 
 

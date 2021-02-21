@@ -43,14 +43,14 @@ def chooseFiles(path, chooseNums):
 
 
 if __name__ == "__main__":
-    chooseFiles("data/raw-img/train/gou", 500)
-    chooseFiles("data/raw-img/train/hua", 500)
-    chooseFiles("data/raw-img/train/ji", 500)
-    chooseFiles("data/raw-img/train/ma", 500)
-    chooseFiles("data/raw-img/train/mao", 500)
-    chooseFiles("data/raw-img/train/niu", 500)
-    chooseFiles("data/raw-img/train/songshu", 500)
-    chooseFiles("data/raw-img/train/xiang", 500)
-    chooseFiles("data/raw-img/train/yang", 500)
-    chooseFiles("data/raw-img/train/zhizhu", 500)
+    chooseFiles("data/train/gou", 500)
+    chooseFiles("data/train/hua", 500)
+    chooseFiles("data/train/ji", 500)
+    chooseFiles("data/train/ma", 500)
+    chooseFiles("data/train/mao", 500)
+    chooseFiles("data/train/niu", 500)
+    chooseFiles("data/train/songshu", 500)
+    chooseFiles("data/train/xiang", 500)
+    chooseFiles("data/train/yang", 500)
+    chooseFiles("data/train/zhizhu", 500)
 

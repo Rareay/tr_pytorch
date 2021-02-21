@@ -85,7 +85,7 @@ class ModeResnet18(nn.Module):
             block_Res_one(512, 512),  # 512 x 7 x 7
         )
         self.POOL2 = nn.MaxPool2d(7, 1)
-        self.fc = nn.Linear(512 * 1 * 1, 3)
+        self.fc = nn.Linear(512 * 1 * 1, 10)
 
 
     def forward(self, x):
