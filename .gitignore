@@ -1,4 +1,5 @@
 data/
+data
 imagelist/*.txt
 runs/
 venv/
@@ -11,3 +12,4 @@ Modu*
 yolov4-pytorch1/
 testData/
 expandData/
+
