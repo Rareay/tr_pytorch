@@ -15,7 +15,7 @@ def renameByNumber(path):
         for file in files:
             if isImage(os.path.join(root, file)) == False:
                 print("File ", os.path.join(root, file), " is not image!")
-                os.remove(os.path.join(path, file))
+                os.remove(os.path.join(root, file))
                 continue
             file_new = format(num,'08d') + os.path.splitext(file)[1]
             os.rename(os.path.join(root, file), os.path.join(root, file_new))
@@ -39,4 +39,13 @@ def addKeyForImage(path, key_ori, key_new):
 
 if __name__ == "__main__":
     #renameByNumber("./data/raw-img/train")
-    addKeyForImage("./data/raw-img/train/gallina", ".", "_g.")
+    addKeyForImage("./data/raw-img/train/gou", ".", "_gou.")
+    addKeyForImage("./data/raw-img/train/hua", ".", "_hua.")
+    addKeyForImage("./data/raw-img/train/ji", ".", "_ji.")
+    addKeyForImage("./data/raw-img/train/ma", ".", "_ma.")
+    addKeyForImage("./data/raw-img/train/mao", ".", "_mao.")
+    addKeyForImage("./data/raw-img/train/niu", ".", "_niu.")
+    addKeyForImage("./data/raw-img/train/songshu", ".", "_songshu.")
+    addKeyForImage("./data/raw-img/train/xiang", ".", "_xiang.")
+    addKeyForImage("./data/raw-img/train/yang", ".", "_yang.")
+    addKeyForImage("./data/raw-img/train/zhizhu", ".", "_zhizhu.")

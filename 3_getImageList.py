@@ -39,9 +39,16 @@ def findfile(labels, img_path, filename):
     print(img_path, " : have ", file_nums, " iamges.")
 
 label1 = [
-          "_gallina",
-          "_pecora",
-          "_scoiattolo",
+          "_gou",
+          "_hua",
+          "_ji",
+          "_ma",
+          "_mao",
+          "_niu",
+          "_songshu",
+          "_xiang",
+          "_yang",
+          "_zhizhu",
           ]
 lables = label1
 
