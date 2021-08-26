@@ -19,8 +19,8 @@ def default_loader(path):
     return Image.open(path).convert('RGB')
 
 image_transform = transforms.Compose([
-    transforms.Resize(224),               # 把图片resize为256*256
-    transforms.RandomCrop(224),           # 随机裁剪224*224
+    transforms.Resize(32),               # 把图片resize为256*256
+    transforms.RandomCrop(32),           # 随机裁剪224*224
     #transforms.RandomHorizontalFlip(),    # 水平翻转
     transforms.ToTensor(),                # 将图像转为Tensor
     transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])   # image=(image-mean)/std

@@ -3,25 +3,47 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+
+#class tlcMode(nn.Module):
+#    def __init__(self):
+#        super(tlcMode, self).__init__()
+#        self.conv1 = nn.Conv2d(3, 32, 3, 2, 1, bias=False)
+#        self.bn1 = nn.BatchNorm2d(32)
+#        self.conv2 = nn.Conv2d(32, 64, 3, 2, 1, bias=False)
+#        self.bn2 = nn.BatchNorm2d(64)
+#        self.pool = nn.AvgPool2d(8)
+#        self.conv3 = nn.Conv2d(64, 4, 1, bias=False)
+#
+#    def forward(self, x):
+#        x = F.relu(self.bn1(self.conv1(x)))
+#        x = F.relu(self.bn2(self.conv2(x)))
+#        x = self.pool(x)
+#        x = self.conv3(x)
+#        x = x.view(-1, 4)
+#        return F.softmax(x, dim=1)
+
 class tlcMode(nn.Module):
     def __init__(self):
         super(tlcMode, self).__init__()
         self.conv1 = nn.Conv2d(3, 32, 3, 2, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(32)
         self.conv2 = nn.Conv2d(32, 64, 3, 2, 1, bias=False)
-        self.conv3 = nn.Conv2d(64, 32, 3, 2, 1, bias=False)
-        self.conv4 = nn.Conv2d(32, 16, 3, 2, 1)
+        self.bn2 = nn.BatchNorm2d(64)
         self.maxpool = nn.MaxPool2d(2, 2)
-        self.fc = nn.Linear(16 * 2 * 2, 3)
+        self.conv3 = nn.Conv2d(64, 3, 1, 1, 0, bias=False)
+        self.fc = nn.Linear(3*4*4, 4)
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
+        x = self.conv1(x)
+        x = F.relu(self.bn1(x))
+        x = self.conv2(x)
+        x = F.relu(self.bn2(x))
         x = self.maxpool(x)
-        x = x.view(-1, 16 * 2 * 2)
-        x = self.fc(x)
+        x = self.conv3(x)
+        x = x.view(-1, 3 * 4 * 4)
+        x = F.softmax(self.fc(x), dim=1)
         return x
+
 
 
 class simpleNet(nn.Module):

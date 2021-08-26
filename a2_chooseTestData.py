@@ -30,8 +30,8 @@ def findFile(path):
     return namelist
 
 
-def chooseFiles(path, chooseNums):
-    newDir = "./testData/"
+def chooseFiles(path, chooseNums, out_dir):
+    newDir = out_dir
     namelist = findFile(path)
     random.seed(100)
     obj_namelist = random.sample(namelist, chooseNums)
@@ -43,14 +43,11 @@ def chooseFiles(path, chooseNums):
 
 
 if __name__ == "__main__":
-    chooseFiles("data/train/gou", 500)
-    chooseFiles("data/train/hua", 500)
-    chooseFiles("data/train/ji", 500)
-    chooseFiles("data/train/ma", 500)
-    chooseFiles("data/train/mao", 500)
-    chooseFiles("data/train/niu", 500)
-    chooseFiles("data/train/songshu", 500)
-    chooseFiles("data/train/xiang", 500)
-    chooseFiles("data/train/yang", 500)
-    chooseFiles("data/train/zhizhu", 500)
+    #out_dir = "./testData/"
+    out_dir = "./valData/"
+    #chooseFiles("data/tlc/color/train/e", 1000, out_dir)
+    #chooseFiles("data/tlc/color/train/r", 1000, out_dir)
+    #chooseFiles("data/tlc/color/train/g", 1000, out_dir)
+    #chooseFiles("data/tlc/color/train/y", 1000, out_dir)
+    chooseFiles("data/temp/image/", 2000, out_dir)
 

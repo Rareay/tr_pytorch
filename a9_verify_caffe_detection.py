@@ -10,8 +10,12 @@ import cv2
 import sys
 
 
+Biases = [10,17,  12,23,  16,27,  18,34,  23,39,  26,49,  33,59,  42,73,  55,100]
+mask1 = [6, 7, 8]
+mask2 = [3, 4, 5]
+mask3 = [0, 1, 2]
 
-def read_imagelist(image_path, label):
+def read_imagelist(image_path):
     name_list = []
     if os.path.isfile(image_path):
         name_list.append(image_path)
@@ -19,7 +23,7 @@ def read_imagelist(image_path, label):
         for root, dirs, files in os.walk(image_path):
             for file in files:
                 full_path = os.path.join(root, file)
-                name_list.append([full_path, label])
+                name_list.append(full_path)
     return name_list
 
 
@@ -27,16 +31,13 @@ def load_image(path, w, h):
     transform = transforms.Compose([
         transforms.ToTensor(), # range [0, 255] -> [0.0,1.0]
         #transforms.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0])
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-        #transforms.Normalize(mean=[104.0/255, 104/255, 104/255], std=[1.0/255, 1.0/255, 1.0/255])
-        #transforms.Normalize(mean=[104.0 / 255, 117 / 255, 123 / 255], std=[1.0 / 255, 1.0 / 255, 1.0 / 255])
+        #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
     img = cv2.imread(path) ## BRG
     if img is None:
         print("image is empty!")
         return None
     img = cv2.resize(img, (h, w))
-    #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # BGR -> RGB
     img = transform(img)  # 归一化到 [0.0,1.0]
     return img
 
@@ -82,17 +83,31 @@ def doCount(counts):
 
 
 
-def predictClass(net, namelist, input_blob, output_blob, input_size):
-    counts = []
-    image = load_image(namelist[0][0], input_size[1], input_size[2])
-    t, outputs = caffe_forward(net, image, input_blob)
-    for i in range(len(output_blob)):
-        #count = [0 for _ in range(len(outputs[output_blob[i]].data[0]))]
-        #counts.append(np.array(count))
-        l = len(outputs[output_blob[i]].data[0])
-        counts.append(np.zeros([l, l]))
-    total = 0
+def predictDetection(net, namelist, input_blob, output_blob, input_size):
+    print(input_size)
+    for name in namelist:
+        image = load_image(name, input_size[1], input_size[2])
+        if image is None:
+            continue
+        t, outputs = caffe_forward(net, image, input_blob)
+        #print(len(outputs))
+        for i in range(len(output_blob)):
+            out_name = output_blob[i]
+            output = outputs[out_name].data
+            heigh = len(output[0][0])
+            width = len(output[0][0][0])
+            for box_index in range(3):
+                for h in range(heigh):
+                    for w in range(width):
+                        deep = box_index * 6
+                        if output[0][deep + 4][h][w] * output[0][deep + 5][h][w]> 0.2:
+                            print("(%d,%d,%d,%d) [" %(i, box_index, h, w), end=" ")
+                            for d in range(6):
+                                print("%.2f" % (output[0][deep + d][h][w]), end=" ")
+                            print("]")
 
+
+def predictClass(net, namelist, input_blob, output_blob, input_size):
     for name in namelist:
         image = load_image(name[0], input_size[1], input_size[2])
         if image is None:
@@ -113,61 +128,24 @@ def predictClass(net, namelist, input_blob, output_blob, input_size):
             counts[i][name[1]][index] += 1
         total += 1
         print("%s" %(name[0]))
-    #counts = np.array(counts)
-    #print(counts)
-    #print(counts / total)
-    doCount(counts)
+    #doCount(counts)
 
-def changeMaskTOImage(mask):
-    deep = len(mask[0]) # 16
-    high = len(mask[0][0]) # 512
-    weight = len(mask[0][0][0]) # 928
-    img = np.zeros([high, weight, 3], np.uint8)
-    for h in range(high):
-        for w in range(weight):
-            max_id = 0
-            max_value = 0
-            for d in range(deep):
-                if mask[0][d][h][w] > max_value:
-                    max_id = d
-                    max_value = mask[0][d][h][w]
-            if max_id > 0:
-                img[h, w, :] = [255, 255, 255]
-    return img
-
-
-def predictMask(net, namelist, input_blob, output_blob, input_size):
-    if not os.path.exists('output'):
-        os.makedirs('output')
-    for name in namelist:
-        image = load_image(name[0], input_size[1], input_size[2])
-        if image is None:
-            continue
-        save_path = os.path.join('output', os.path.basename(name[0]))
-        t, outputs = caffe_forward(net, image, input_blob)
-        for i in range(len(output_blob)):
-            out_name = output_blob[i]
-            output = outputs[out_name].data # 16 * 512 * 928
-            img = changeMaskTOImage(output)
-            cv2.imwrite(save_path, img)
-            print("saved in %s" % (save_path))
+    
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='test caffemode')
-    parser.add_argument('--protofile',  default='caffemodel/tlc-29.prototxt', type=str)
-    parser.add_argument('--weightfile', default='caffemodel/tlc-29.caffemodel', type=str)
-    parser.add_argument('--input_blob',  default='blob1',    type=str)
-    #parser.add_argument('--input_blob',  default='data',    type=str)
-    parser.add_argument('--output_blob', default=['softmax_blob1'], type=list)
-    #parser.add_argument('--output_blob', default=['prob'], type=list)
-    parser.add_argument('--imgfile', default='./data/nmac/Bicycle', type=str)
-    parser.add_argument('--imgclass', default=0, type=int)
+    parser.add_argument('--protofile',  default='caffemodel/quan.prototxt', type=str)
+    parser.add_argument('--weightfile', default='caffemodel/quan.caffemodel', type=str)
+    parser.add_argument('--input_blob',  default='data',    type=str)
+    #parser.add_argument('--input_blob',  default='blob1',    type=str)
+    parser.add_argument('--output_blob', default=['prob'], type=list)
+    #parser.add_argument('--output_blob', default=['layer54-conv', 'layer61-conv', 'layer69-conv'], type=list)
+    parser.add_argument('--imgfile', default='./data/tlc/color/test/e', type=str)
     parser.add_argument('--input_size', default=[3, 32, 32], type=list)
-    #parser.add_argument('--input_size', default=[3, 928, 512], type=list)
-    parser.add_argument('--meanB', default=104, type=float)
-    parser.add_argument('--meanG', default=117, type=float)
-    parser.add_argument('--meanR', default=123, type=float)
+    parser.add_argument('--meanB', default=102, type=float)
+    parser.add_argument('--meanG', default=102, type=float)
+    parser.add_argument('--meanR', default=102, type=float)
     parser.add_argument('--scale', default=255, type=float)
 
     args = parser.parse_args()
@@ -178,22 +156,19 @@ if __name__ == '__main__':
     input_size = args.input_size
     output_blob = args.output_blob
     imgfile = args.imgfile
-    imgclass = args.imgclass
     
 
-    #namelist = read_imagelist(imgfile, imgclass)
     namelist = []
-    namelist += read_imagelist("data/tlc/tlc-test/e", 0)
-    namelist += read_imagelist("data/tlc/tlc-test/r", 1)
-    namelist += read_imagelist("data/tlc/tlc-test/g", 2)
-    namelist += read_imagelist("data/tlc/tlc-test/y", 3)
-    #namelist += read_imagelist("data/nmac/Bicycle", 1)
-    #namelist += read_imagelist("data/nmac/Tricycle2", 2)
-    #namelist += read_imagelist(imgfile, 0)
+    #namelist = read_imagelist(imgfile)
+    namelist += read_imagelist("data/tlc/color/test/e", 0)
+    namelist += read_imagelist("data/tlc/color/test/g", 1)
+    namelist += read_imagelist("data/tlc/color/test/r", 2)
+    namelist += read_imagelist("data/tlc/color/test/y", 3)
+
 
     net = load_caffemod(protofile, weightfile, input_blob, input_size)
 
+    #predictDetection(net, namelist, input_blob, output_blob, input_size)
     predictClass(net, namelist, input_blob, output_blob, input_size)
-    #predictMask(net, namelist, input_blob, output_blob, input_size)
 
 

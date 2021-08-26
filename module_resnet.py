@@ -66,6 +66,29 @@ class block_Res_two(nn.Module):
         return F.relu(self.CB(x) + self.res(x))
 
 
+class ModeResnet10(nn.Module):
+    def __init__(self):
+        super(ModeResnet10, self).__init__()
+        self.CBR1 = block_CBR(3, 64, 7, 2)
+        self.POOL1 = nn.MaxPool2d(3, 2)
+        self.RES = nn.Sequential(
+            block_Res_two(64, 64, first=True),
+            block_Res_one(64, 64), # 64  8 x 8
+            block_Res_two(64, 128),
+            block_Res_one(128, 128), # 128 4 x 4
+        )
+        self.POOL2 = nn.MaxPool2d(4, 1)
+        self.fc = nn.Linear(128 * 1 * 1, 4)
+
+    def forward(self, x):
+        x = self.CBR1(x)
+        x = self.POOL1(x)
+        x = self.RES(x)
+        x = self.POOL2(x)
+        x = x.view(-1, 128 * 1 * 1)
+        x = self.fc(x)
+        x = F.softmax(x, dim=1)
+        return x
 
 
 class ModeResnet18(nn.Module):
@@ -76,7 +99,7 @@ class ModeResnet18(nn.Module):
         self.POOL1 = nn.MaxPool2d(3, 2)
         self.RES = nn.Sequential(
             block_Res_two(64, 64, first=True),
-            block_Res_one(64, 64),  # 64 6 x 56
+            block_Res_one(64, 64),  # 64 56 x 56
             block_Res_two(64, 128),
             block_Res_one(128, 128),  # 128 x 28 x 28
             block_Res_two(128, 256),

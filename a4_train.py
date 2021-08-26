@@ -1,4 +1,5 @@
 import torch
+import os
 import torchvision
 import torchvision.transforms as transforms
 from torchvision import models
@@ -17,7 +18,8 @@ import torch.optim as optim
 #from tensorboardX import SummaryWriter
 import torchvision.utils as vutils
 
-from module_resnet import ModeResnet18
+from module_resnet import ModeResnet18, ModeResnet10
+
 
 
 
@@ -47,7 +49,7 @@ class Demo():
     def loadModule(self, Module):
         self.Module = Module
         if self.__useCuda:
-            self.Module = self.Module.cuda()
+            self.Module = self.Module.cuda(0)
 
     def train(self, lr=0.5, momentum=0.9):
         Criterion = nn.CrossEntropyLoss()
@@ -124,38 +126,40 @@ class Demo():
             print('Test ', self.Classes[i], ' Acc: %.4f' % (class_correct[i] / class_total[i]))
 
 if __name__ == "__main__":
+    #os.environ['CUDA_VISIBLE_DEVICES'] = 7
     demo = Demo()
     demo.Classes = getClass()
 
     TrainData = getDataset(txt="./imagelist/train.txt")
-    TestData = getDataset(txt="./imagelist/test.txt")
+    ValData = getDataset(txt="./imagelist/val.txt")
     TrainLoader = DataLoader(dataset=TrainData, batch_size=32, shuffle=True, num_workers=2)
-    TestLoader = DataLoader(dataset=TestData, batch_size=32, shuffle=False, num_workers=2)
-    demo.loadData(TrainLoader, TestLoader)
+    ValLoader = DataLoader(dataset=ValData, batch_size=32, shuffle=False, num_workers=2)
+    demo.loadData(TrainLoader, ValLoader)
 
     #Module = torchvision.models.resnet18(pretrained=True)
-    #Module = ModeResnet18()
+    #Module = tlcMode()
+    Module = ModeResnet10()
     #Module.load_state_dict(torch.load("Module5.pth"))
     #Module = VGG16()
     #for param in Module.parameters():
     #    param.require_grad = False  # 不改变卷积网络部分的参数
     #dim = Module.fc.in_features
     #Module.fc = nn.Linear(dim, 3)
-    Module = models.resnet50(pretrained=True)
-    for param in Module.parameters():
-        param.requires_grad = False
-    fc_inputs = Module.fc.in_features
-    Module.fc = nn.Sequential(
-        nn.Linear(fc_inputs, 256),
-        nn.ReLU(),
-        nn.Dropout(0.4),
-        nn.Linear(256, 10),
-        nn.LogSoftmax(dim=1)
-    )
+    #Module = models.resnet50(pretrained=True)
+    #for param in Module.parameters():
+    #    param.requires_grad = False
+    #fc_inputs = Module.fc.in_features
+    #Module.fc = nn.Sequential(
+    #    nn.Linear(fc_inputs, 256),
+    #    nn.ReLU(),
+    #    nn.Dropout(0.4),
+    #    nn.Linear(256, 10),
+    #    nn.LogSoftmax(dim=1)
+    #)
     demo.loadModule(Module)
 
     demo.Epoch = 50
     demo.EpochSaveModule = 5
     demo.EpochDoTest = 1
-    demo.train(lr=0.0001)
+    demo.train(lr=0.0005)
 

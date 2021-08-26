@@ -23,7 +23,10 @@ def findfile_1(img_path, filename):
 
 
 def findfile(labels, img_path, filename):
-    file_write = open(filename, "w")
+    if os.path.exists(filename):
+        os.remove(filename)
+    file_write = open(filename, "a+")
+    #file_write = open(filename, "w")
     line = ""
     file_nums = 0
     for root, dirs, files in os.walk(img_path):
@@ -31,11 +34,12 @@ def findfile(labels, img_path, filename):
             tag_index = 0
             for tag in labels:
                 if re.search(tag, file) != None:
-                    line = line + os.path.join(root, file) + " " + str(tag_index) + "\n";
+                    file_write.write(os.path.join(root, file) + " " + str(tag_index) + "\n")
+                    #line = line + os.path.join(root, file) + " " + str(tag_index) + "\n"
                     file_nums += 1
                     break
                 tag_index += 1
-    file_write.write(line)
+    #file_write.write(line)
     print(img_path, " : have ", file_nums, " iamges.")
 
 label1 = [
@@ -50,14 +54,15 @@ label1 = [
           "_yang_",
           "_zhizhu_",
           ]
-lables = label1
+label2 = ["_e_", "_r_", "_g_", "_y_"]
+lables = label2
 
 def getClass():
     return lables
 
 if __name__ == '__main__':
     # 使用相对路径
-    findfile(lables, r"data/test", "./imagelist/test.txt" )
-    findfile(lables, r"data/train", "./imagelist/train.txt")
+    findfile(lables, r"data/tlc/color/val", "./imagelist/val.txt" )
+    findfile(lables, r"data/tlc/color/train", "./imagelist/train.txt")
     #findfile(lables, r"./data/dogs-vs-cats/test", "./imagelist/test.txt" )
     #findfile(lables, r"./data/dogs-vs-cats/train", "./imagelist/train.txt")

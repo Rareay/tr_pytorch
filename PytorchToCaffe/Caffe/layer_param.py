@@ -30,7 +30,7 @@ class Layer_param():
         self.top=self.param.top
         self.top.extend(top)
         self.bottom=self.param.bottom
-        print("----- ", bottom)
+        print("----- name:", name, " type:", type, " top:", top, " bottom", bottom)
         self.bottom.extend(bottom)
 
     def fc_param(self, num_output, weight_filler='xavier', bias_filler='constant',has_bias=True):
