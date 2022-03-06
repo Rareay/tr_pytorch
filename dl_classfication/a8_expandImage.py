@@ -297,15 +297,15 @@ def expandImage(image_dir, category, save_dir='./expandData', nums=0):
 
 
 if __name__ == "__main__":
-    expandImage('data/color/train/y', 'y', nums=5000 - 2642)
-    #expandImage('data/train/hua', 'hua', nums=5000 - 1612)
-    #expandImage('data/train/ji', 'ji', nums=5000 - 2598)
-    #expandImage('data/train/ma', 'ma', nums=5000 - 2123)
-    #expandImage('data/train/mao', 'mao', nums=5000 - 1168)
-    #expandImage('data/train/niu', 'niu', nums=5000 - 1366)
-    #expandImage('data/train/songshu', 'songshu', nums=5000 - 432)
-    #expandImage('data/train/xiang', 'xiang', nums=5000 - 822)
-    #expandImage('data/train/yang', 'yang', nums=5000 - 1320)
-    #expandImage('data/train/zhizhu', 'zhizhu', nums=5000 - 4321)
+    #expandImage('data/raw-img/train/', 'y', nums=5000 - 2642)
+    expandImage('data/raw-img/train/hua', 'hua', nums=5000 - 1612)
+    expandImage('data/raw-img/train/ji', 'ji', nums=5000 - 2598)
+    expandImage('data/raw-img/train/ma', 'ma', nums=5000 - 2123)
+    expandImage('data/raw-img/train/mao', 'mao', nums=5000 - 1168)
+    expandImage('data/raw-img/train/niu', 'niu', nums=5000 - 1366)
+    expandImage('data/raw-img/train/songshu', 'songshu', nums=5000 - 432)
+    expandImage('data/raw-img/train/xiang', 'xiang', nums=5000 - 822)
+    expandImage('data/raw-img/train/yang', 'yang', nums=5000 - 1320)
+    expandImage('data/raw-img/train/zhizhu', 'zhizhu', nums=5000 - 4321)
 
 

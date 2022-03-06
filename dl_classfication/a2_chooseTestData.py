@@ -49,5 +49,5 @@ if __name__ == "__main__":
     #chooseFiles("data/tlc/color/train/r", 1000, out_dir)
     #chooseFiles("data/tlc/color/train/g", 1000, out_dir)
     #chooseFiles("data/tlc/color/train/y", 1000, out_dir)
-    chooseFiles("data/temp/image/", 2000, out_dir)
+    chooseFiles("data/dogvscat/train/dog", 2500, out_dir)
 

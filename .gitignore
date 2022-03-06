@@ -1,15 +1,12 @@
-data/
-data
-imagelist/*.txt
-runs/
-venv/
-*.pth
-.idea/
 __pycache__/
+.idea/
+*.pth
 *.prototxt
 *.caffemodel
-Modu*
-yolov4-pytorch1/
-testData/
-expandData/
+dl_classfication/__pycache__/
+dl_classfication/imagelist/*.txt
+dl_classfication/data/
+dl_classfication/Models/
+dl_classfication/valData
+
 

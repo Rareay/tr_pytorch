@@ -3,11 +3,11 @@ import os
 import torchvision
 import torchvision.transforms as transforms
 from torchvision import models
-from getDataSet import getDataset, imshowDatesetBatch
+from getdataset import getDataset, imshowDatesetBatch
 from torchvision import transforms
 from torch.utils.data import DataLoader
 from a3_getImageList import getClass
-from modules import *
+import torch.nn as nn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,7 +54,7 @@ class Demo():
     def train(self, lr=0.5, momentum=0.9):
         Criterion = nn.CrossEntropyLoss()
         Optimizer = optim.SGD(self.Module.parameters(), lr=lr, momentum=momentum)
-        self.Module.train()
+        #self.Module.train()
         self.BatchNum = 0
         for epoch in range(1, self.Epoch+1):
             train_loss = 0.
@@ -99,7 +99,7 @@ class Demo():
         total = 0
         class_correct = list(0. for i in range(len(self.Classes)))
         class_total = list(0. for i in range(len(self.Classes)))
-        self.Module.eval()
+        #self.Module.eval()
         with torch.no_grad():
             for data in self.TestLoader:
                 inputs, labels = data
@@ -116,6 +116,7 @@ class Demo():
                     label = labels[i]
                     class_correct[label] += c[i].item()
                     class_total[label] += 1
+        #self.Module.train()
         #self.Writer.add_scalar('test/loss tatal', correct / total, self.BatchNum)
         print('Test Total Acc: %.4f' % (correct / total))
 
@@ -126,40 +127,46 @@ class Demo():
             print('Test ', self.Classes[i], ' Acc: %.4f' % (class_correct[i] / class_total[i]))
 
 if __name__ == "__main__":
+    ########################## param ##########################
+    batch_size = 32
+    epoch = 100 
+    epoch_save_mode = 5 # 间隔多少个epoch保存一次模型
+    ###########################################################
     #os.environ['CUDA_VISIBLE_DEVICES'] = 7
     demo = Demo()
     demo.Classes = getClass()
 
     TrainData = getDataset(txt="./imagelist/train.txt")
     ValData = getDataset(txt="./imagelist/val.txt")
-    TrainLoader = DataLoader(dataset=TrainData, batch_size=32, shuffle=True, num_workers=2)
-    ValLoader = DataLoader(dataset=ValData, batch_size=32, shuffle=False, num_workers=2)
+    TrainLoader = DataLoader(dataset=TrainData, batch_size=16, shuffle=True, num_workers=2)
+    ValLoader = DataLoader(dataset=ValData, batch_size=16, shuffle=False, num_workers=2)
     demo.loadData(TrainLoader, ValLoader)
 
     #Module = torchvision.models.resnet18(pretrained=True)
     #Module = tlcMode()
-    Module = ModeResnet10()
+    #Module = ModeResnet10()
     #Module.load_state_dict(torch.load("Module5.pth"))
     #Module = VGG16()
     #for param in Module.parameters():
     #    param.require_grad = False  # 不改变卷积网络部分的参数
     #dim = Module.fc.in_features
     #Module.fc = nn.Linear(dim, 3)
-    #Module = models.resnet50(pretrained=True)
+    Module = models.resnet34(pretrained=True)
     #for param in Module.parameters():
     #    param.requires_grad = False
-    #fc_inputs = Module.fc.in_features
-    #Module.fc = nn.Sequential(
-    #    nn.Linear(fc_inputs, 256),
-    #    nn.ReLU(),
-    #    nn.Dropout(0.4),
-    #    nn.Linear(256, 10),
-    #    nn.LogSoftmax(dim=1)
-    #)
+    fc_inputs = Module.fc.in_features
+    Module.fc = nn.Sequential(
+        nn.Linear(fc_inputs, 512),
+        nn.ReLU(),
+        nn.Dropout(0.4),
+        nn.Linear(512, 2),
+        nn.LogSoftmax(dim=1)
+    )
+    #Module.load_state_dict(torch.load("Module10.pth"))
     demo.loadModule(Module)
 
-    demo.Epoch = 50
+    demo.Epoch = 500
     demo.EpochSaveModule = 5
     demo.EpochDoTest = 1
-    demo.train(lr=0.0005)
+    demo.train(lr=0.005)
 
