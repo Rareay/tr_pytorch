@@ -56,7 +56,7 @@ label1 = [
           ]
 label2 = ["_e_", "_r_", "_g_", "_y_"]
 label3 = ['cat', "dog"]
-lables = label3
+lables = label1
 
 def getClass():
     return lables
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # 使用相对路径
     #findfile(lables, r"data/tlc/color/val", "./imagelist/val.txt" )
     #findfile(lables, r"data/tlc/color/train", "./imagelist/train.txt")
-    #findfile(lables, r"./data/raw-img/test", "./imagelist/val.txt" )
-    #findfile(lables, r"./data/raw-img/train", "./imagelist/train.txt")
-    findfile(lables, r"./data/dogvscat/train", "./imagelist/train.txt")
-    findfile(lables, r"./data/dogvscat/valide", "./imagelist/val.txt")
+    findfile(lables, r"./data/raw-img/test", "./imagelist/val.txt" )
+    findfile(lables, r"./data/raw-img/train", "./imagelist/train.txt")
+    #findfile(lables, r"./data/dogvscat/train", "./imagelist/train.txt")
+    #findfile(lables, r"./data/dogvscat/valide", "./imagelist/val.txt")

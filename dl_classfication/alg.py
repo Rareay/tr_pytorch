@@ -122,6 +122,8 @@ class ModelClassfication():
             train_loss = 0.
             train_acc  = 0.
             total_img  = 0.
+            class_correct = list(0. for i in range(len(self.class_name)))
+            class_total = list(0. for i in range(len(self.class_name)))
             for i, data in enumerate(self.train_loader, 0): # ?????
                 inputs, labels = data
                 total_img += labels.size()[0]
@@ -139,16 +141,26 @@ class ModelClassfication():
                 acc = torch.sum(predicted == labels)
                 train_acc += acc.item()
 
+                # 统计各类别正确数量和总数量
+                c = (predicted == labels).squeeze()
+                for j in range(labels.size()[0]): 
+                    label = labels[j]
+                    class_correct[label] += c[j].item()
+                    class_total[label] += 1
+
+                # 打印
                 p_num = 10
                 if i != 0 and i % p_num == 0:
-                    print('Epoch: %d  Batch: %d,  Loss: %.4f,  Acc: %.4f'
+                    print('Epoch: %d  Batch: %d,  Loss: %.4f,  Tacc: %.4f'
                             % (self.epoch,
                                batch_num,
                                train_loss / i,
                                train_acc / total_img))
-                    
-                    #self.Writer.add_scalar('train/loss', train_loss / i, self.BatchNum)
-                    #self.Writer.add_scalar('train/acc', train_acc / total_img, self.BatchNum)
+                    print("Acc:", end=" ")
+                    for i in range(len(self.class_name)):
+                        print('[%s %.4f] ' % (self.class_name[i], class_correct[i] / class_total[i]), end="")
+                    print("")
+
                 batch_num += 1
                 if i != 0:
                     cur_loss = train_loss / i
@@ -249,7 +261,7 @@ if __name__ == "__main__":
         classfication.change_class_number(num=int(args.class_num))
         classfication.load_optimizer()
         if args.dict != None: # （可选）指定模型文件
-            classfication.load_dict()
+            classfication.load_dict(args.dict)
             classfication.load_optimizer()
         classfication.train(epoch_max=int(args.epoch_max))
     elif 'test' == args.type:
