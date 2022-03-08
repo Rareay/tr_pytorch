@@ -11,6 +11,7 @@ from a3_getImageList import getClass
 from getdataset import getDataset
 import os
 import time
+import numpy as np
 
 
 class ModelClassfication():
@@ -38,6 +39,7 @@ class ModelClassfication():
         self.__device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         if not os.path.exists(self.model_save_path):
             os.system('mkdir %s' % (self.model_save_path))
+        np.set_printoptions(precision=4)
 
     def load_data(self, train_txt=None, val_txt=None):
         if train_txt != None:
@@ -122,8 +124,8 @@ class ModelClassfication():
             train_loss = 0.
             train_acc  = 0.
             total_img  = 0.
-            class_correct = list(0. for i in range(len(self.class_name)))
-            class_total = list(0. for i in range(len(self.class_name)))
+            tab = np.zeros([len(self.class_name), len(self.class_name)])
+            tab_diag = np.diag_indices(len(self.class_name))
             for i, data in enumerate(self.train_loader, 0): # ?????
                 inputs, labels = data
                 total_img += labels.size()[0]
@@ -138,27 +140,38 @@ class ModelClassfication():
                 loss.backward()
                 self.optimizer.step()
                 train_loss += loss.item()
-                acc = torch.sum(predicted == labels)
-                train_acc += acc.item()
+                #acc = torch.sum(predicted == labels)
+                #train_acc += acc.item()
 
                 # 统计各类别正确数量和总数量
-                c = (predicted == labels).squeeze()
-                for j in range(labels.size()[0]): 
-                    label = labels[j]
-                    class_correct[label] += c[j].item()
-                    class_total[label] += 1
+                #c = (predicted == labels).squeeze()
+                p = predicted.tolist()
+                l = labels.tolist()
+                for j in range(len(p)):  # 表头：  实际值\测量值
+                    tab[l[j], p[j]] += 1
 
                 # 打印
                 p_num = 10
                 if i != 0 and i % p_num == 0:
+                    sum_0 = tab.sum(axis=0) # 每一列求和
+                    sum_0[sum_0 == 0] = 1
+                    sum_1 = tab.sum(axis=1) # 每一行求和
+                    sum_1[sum_1 == 0] = 1
+                    diag = tab[tab_diag]    # 对角线
+                    # 精确率
+                    precision = diag / sum_0
+                    # 召回率
+                    recall = diag / sum_1
+                    # 准确率
+                    accuracy = diag.sum() / tab.sum()
                     print('Epoch: %d  Batch: %d,  Loss: %.4f,  Tacc: %.4f'
                             % (self.epoch,
                                batch_num,
                                train_loss / i,
-                               train_acc / total_img))
-                    print("Acc:", end=" ")
-                    for i in range(len(self.class_name)):
-                        print('[%s %.4f] ' % (self.class_name[i], class_correct[i] / class_total[i]), end="")
+                               accuracy))
+                    print("             Precision recall", end="\n")
+                    for jj in range(len(self.class_name)):
+                        print('%12s %.4f    %.4f' % (self.class_name[jj], precision[jj], recall[jj]))
                     print("")
 
                 batch_num += 1
@@ -179,8 +192,9 @@ class ModelClassfication():
             self.model = self.model.cuda(0)
         correct = 0
         total = 0
-        class_correct = list(0. for i in range(len(self.class_name)))
-        class_total = list(0. for i in range(len(self.class_name)))
+        flag = 0
+        tab = np.zeros([len(self.class_name), len(self.class_name)])
+        tab_diag = np.diag_indices(len(self.class_name))
         self.model.eval()
         with torch.no_grad():
             for data in self.val_loader:
@@ -191,20 +205,30 @@ class ModelClassfication():
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-                if total % 1000 == 0:
+                if (total - flag) > 500:
+                    flag = total
                     print("Have been test %d images..." % (total))
-                c = (predicted == labels).squeeze()
-                for i in range(labels.size()[0]):
-                    label = labels[i]
-                    class_correct[label] += c[i].item()
-                    class_total[label] += 1
-        print('Test Total Acc: %.4f' % (correct / total))
+                p = predicted.tolist()
+                l = labels.tolist()
+                for j in range(len(p)):  # 表头：  实际值\测量值
+                    tab[l[j], p[j]] += 1
+        print("Have been test %d images... Done." % (total))
 
-        for i in range(len(self.class_name)):
-            #self.Writer.add_scalar('testc ' + self.Classes[i],
-            #                       class_correct[i] / class_total[i],
-            #                       self.BatchNum)
-            print('Test ', self.class_name[i], ' Acc: %.4f' % (class_correct[i] / class_total[i]))
+        sum_0 = tab.sum(axis=0) # 每一列求和
+        sum_0[sum_0 == 0] = 1
+        sum_1 = tab.sum(axis=1) # 每一行求和
+        sum_1[sum_1 == 0] = 1
+        diag = tab[tab_diag]    # 对角线
+        # 精确率
+        precision = diag / sum_0
+        # 召回率
+        recall = diag / sum_1
+        # 准确率
+        accuracy = diag.sum() / tab.sum()
+        print('Test Total Acc: %.4f' % (accuracy))
+        print("             Precision recall", end="\n")
+        for jj in range(len(self.class_name)):
+            print('%12s %.4f    %.4f' % (self.class_name[jj], precision[jj], recall[jj]))
 
     
 
