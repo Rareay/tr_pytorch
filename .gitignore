@@ -8,5 +8,5 @@ dl_classfication/imagelist/*.txt
 dl_classfication/data/
 dl_classfication/Models/
 dl_classfication/valData
-
+dl_classfication/download/
 

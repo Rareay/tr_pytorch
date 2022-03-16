@@ -1,4 +1,4 @@
-
+from torch import is_tensor
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from a3_getImageList import getClass
 import cv2
+import os
 
 # 输出图像的函数
 def imshowDatesetBatch(img):
@@ -69,7 +70,31 @@ class getDataset(Dataset):
         return len(self.imgs)
 
 
+def download_CIFAR10(is_train=True):
+    if is_train == True:
+        t = "train"
+    else:
+        t = "test"
+    if not os.path.exists("download"):
+        os.system("mkdir download")
+    if not os.path.exists("download/%s" % (t)):
+        os.system("mkdir download/%s" % (t))
+    dataset = torchvision.datasets.CIFAR10(root="download/CIFAR10",\
+        train=is_train, download=True, transform=None)
+    labels = np.zeros(len(dataset))
+    for i in range(len(dataset)):
+        labels[i] = dataset[i][1]
+        img_path = 'download/CIFAR10/%s/%d_%d.png' % (t, labels[i], i)
+        sample = dataset[i][0]
+        sample.save(img_path)
+
+
+
+
 if __name__ == '__main__':
+    download_CIFAR10(is_train=True)
+    download_CIFAR10(is_train=False)
+    exit(0)
     train_data = getDataset(txt="./imagelist/train.txt", w=300, h=200)
     #train_loader = DataLoader(dataset=train_data, batch_size=16, shuffle=True)
     train_loader = DataLoader(dataset=train_data, batch_size=16, shuffle=True, num_workers=2)

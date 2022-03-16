@@ -18,34 +18,32 @@ class ModelClassfication():
     __use_cuda = None
     __device   = None
     use_type = "test" # train  test  continue 三种模式
-    input_w = 512
-    input_h = 512
-    batch_size = 8
-    epoch = 0
-    model = None
-    optimizer = None
-    lr = 0.005
+    input_w = 512     # 模型输入尺寸
+    input_h = 512     # 模型输入尺寸
+    batch_size = 8    # 
+    epoch = 0         #
+    model = None      # 模型
+    optimizer = None  # 优化器
+    lr = 0.005        # 初始学习率
     class_name = None # 类别名称
     model_name = None # 模型名称
-    model_save_path = "Models"
-    train_loader = None
-    val_loader  = None
-    save_each_epoch = 0
-    writer = None
-    classes = None
+    model_save_path = "Models" # 模型保存的文件夹名称
+    train_loader = None # 训练数据加载器
+    val_loader  = None  # 测试数据加载器
+    save_each_epoch = 0 # 多少个epoch保存一次模型
 
     def __init__(self) -> None:
         self.__use_cuda = torch.cuda.is_available()
         self.__device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         if not os.path.exists(self.model_save_path):
             os.system('mkdir %s' % (self.model_save_path))
-        np.set_printoptions(precision=4)
+        np.set_printoptions(precision=4) # numpy打印保留4位小数
 
     def load_data(self, train_txt=None, val_txt=None):
-        if train_txt != None:
+        if train_txt != None: # 获取训练数据加载器
             train_data = getDataset(txt=train_txt, w=self.input_w, h=self.input_h)
             self.train_loader = DataLoader(dataset=train_data, batch_size=self.batch_size, shuffle=True, num_workers=2)
-        if val_txt != None:
+        if val_txt != None:   # 获取测试数据加载器
             val_data = getDataset(txt=val_txt, w=self.input_w, h=self.input_h)
             self.val_loader = DataLoader(dataset=val_data, batch_size=self.batch_size, shuffle=False, num_workers=2)
         if train_txt == None and val_txt == None:
@@ -74,7 +72,7 @@ class ModelClassfication():
                 param.requires_grad = False # True：可以更新梯度 False：不可更新梯度
         
 
-    def change_class_number(self, num):
+    def change_class_number(self, num): # 改变模型的类别数量，即要分类的个数
         if self.model == None:
             print("Please input mode name!")
             exit(0)
@@ -87,17 +85,21 @@ class ModelClassfication():
             nn.LogSoftmax(dim=1)
         )
     
-    def load_optimizer(self):
+    def load_optimizer(self): # 加载优化器
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr, momentum=0.9)
 
-    def save_dict(self, filename):
+    def save_dict(self, filename): # 保存模型和其他参数，同时保存模型的onnx
         torch.save({
             'epoch': self.epoch,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
-        }, filename)
+        }, filename + ".pth")
+        print("Save Path:" + filename + ".pth")
+        input = torch.randn(1, 3, self.input_h, self.input_w).to(self.__device) # 设置输入尺寸
+        torch.onnx.export(self.model, input, filename + ".onnx", verbose=False)
+        #print("Save Path:" + filename + ".onnx")
     
-    def load_dict(self, filename):
+    def load_dict(self, filename): # 加载模型和其他参数
         if None == filename:
             print("The dict file not exists!")
             exit(0)
@@ -105,7 +107,7 @@ class ModelClassfication():
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
-
+    
     def train(self, epoch_max):
         if self.__use_cuda:
             self.model = self.model.cuda(0)
@@ -126,7 +128,7 @@ class ModelClassfication():
             total_img  = 0.
             tab = np.zeros([len(self.class_name), len(self.class_name)])
             tab_diag = np.diag_indices(len(self.class_name))
-            for i, data in enumerate(self.train_loader, 0): # ?????
+            for i, data in enumerate(self.train_loader, 0):
                 inputs, labels = data
                 total_img += labels.size()[0]
                 if self.__use_cuda:
@@ -140,11 +142,8 @@ class ModelClassfication():
                 loss.backward()
                 self.optimizer.step()
                 train_loss += loss.item()
-                #acc = torch.sum(predicted == labels)
-                #train_acc += acc.item()
 
                 # 统计各类别正确数量和总数量
-                #c = (predicted == labels).squeeze()
                 p = predicted.tolist()
                 l = labels.tolist()
                 for j in range(len(p)):  # 表头：  实际值\测量值
@@ -158,32 +157,31 @@ class ModelClassfication():
                     sum_1 = tab.sum(axis=1) # 每一行求和
                     sum_1[sum_1 == 0] = 1
                     diag = tab[tab_diag]    # 对角线
-                    # 精确率
-                    precision = diag / sum_0
-                    # 召回率
-                    recall = diag / sum_1
-                    # 准确率
-                    accuracy = diag.sum() / tab.sum()
-                    print('Epoch: %d  Batch: %d,  Loss: %.4f,  Tacc: %.4f'
+                    precision = diag / sum_0          # 精确率
+                    recall = diag / sum_1             # 召回率
+                    accuracy = diag.sum() / tab.sum() # 准确率
+                    print('Epoch: %d  Batch: %d,  Iamges: %d,  Loss: %.4f,  Tacc: %.4f'
                             % (self.epoch,
                                batch_num,
+                               total_img,
                                train_loss / i,
                                accuracy))
                     print("             Precision recall", end="\n")
                     for jj in range(len(self.class_name)):
                         print('%12s %.4f    %.4f' % (self.class_name[jj], precision[jj], recall[jj]))
                     print("")
+                    cur_acc = accuracy
 
                 batch_num += 1
                 if i != 0:
                     cur_loss = train_loss / i
-                    cur_acc  = train_acc / total_img
+
             if self.save_each_epoch != 0 and self.epoch % self.save_each_epoch == 0:
                 log_time = time.strftime("%Y%m%d-%H%M%S", time.localtime())
-                log_acc  = "-%.4f-%.4f" % (cur_loss, cur_acc)
-                name = self.model_name + "-" + log_time + log_acc + ".pth"
+                log_acc  = "%.4f-%.4f" % (cur_loss, cur_acc)
+                name = "%s-h%d-w%d-c%d-%s-%s" % (self.model_name, len(self.class_name), \
+                                                 self.input_h, self.input_w, log_time, log_acc)
                 save_path = os.path.join(self.model_save_path, name)
-                print("Save Path:", save_path)
                 self.save_dict(save_path)
         print("Finished Training.")
 
@@ -236,7 +234,7 @@ class ModelClassfication():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--model_name', default=None)
+    parser.add_argument('-m', '--model_name', default=None)
     parser.add_argument('-t', '--type', default=None)
     parser.add_argument('-c', '--class_num', default=2)
     parser.add_argument('-W', '--width', default=None)
@@ -256,7 +254,7 @@ if __name__ == "__main__":
         or None == args.height:
         print("Usage:")
         print("  python %s -n resnet34 -t test -c 2 -W 512 -H 512 -b 16 -r 0.005" % (sys.argv[0]))
-        print("  -n --mode_name   resnet18/resnet34/resnet50/resnet101/resnet152")
+        print("  -m --mode_name   resnet18/resnet34/resnet50/resnet101/resnet152")
         print("  -t --type        test/train/continue")
         print("  -c --class_num   2")
         print("  -W --width       512")
